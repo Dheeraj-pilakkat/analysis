@@ -80,7 +80,7 @@ def main():
         render_index_snapshots()
 
         st.subheader("Recent Data")
-        st.dataframe(df_hist.tail())
+        st.dataframe(df_hist)
 
     with tab2:
         render_charts(df_hist, df_features)
