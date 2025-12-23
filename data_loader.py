@@ -68,11 +68,7 @@ def get_live_price(ticker):
     """Fetches live price data for a given ticker."""
     try:
         stock = yf.Ticker(ticker)
-<<<<<<< HEAD
         
-=======
-
->>>>>>> fe0aa3ec28660db45ff2e82ba4eab1d2dc4ecdb0
         data = stock.history(period="1d", interval="1m")
         if data.empty:
             # Fallback to previous day's close if no intraday data
@@ -115,10 +111,7 @@ def get_historical_data(ticker, start_date, end_date):
     try:
         stock = yf.Ticker(ticker)
         data = stock.history(start=start_date, end=end_date)
-<<<<<<< HEAD
     
-=======
->>>>>>> fe0aa3ec28660db45ff2e82ba4eab1d2dc4ecdb0
         return data
     except Exception as e:
         st.error(f"Error fetching historical data for {ticker}: {e}")
