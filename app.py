@@ -89,7 +89,7 @@ def main():
         render_prediction_tab(prediction_data)
 
         st.subheader("Feature Data Used for Model")
-        st.dataframe(df_features.tail())
+        st.dataframe(df_features)
 
     with tab4:
         live_data_for_report = get_live_price(ticker)
@@ -103,7 +103,7 @@ def main():
             }
             if prediction_data
             else None,
-            df_hist.tail(100),
+            df_hist,
         )  # Pass last 100 days for chart
 
     # --- Disclaimer ---
