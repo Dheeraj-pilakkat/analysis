@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+plotly
+scikit-learn
+tensorflow
+yfinance
+Jinja2
+weasyprint
+ta
+kaleido
