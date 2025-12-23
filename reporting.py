@@ -7,7 +7,6 @@ from datetime import datetime
 import jinja2
 import plotly.graph_objects as go
 import streamlit as st
-from weasyprint import HTML
 
 # --- HTML Template for the report ---
 HTML_TEMPLATE = """
@@ -127,21 +126,14 @@ def generate_html_report(ticker, market_status, prediction, df_hist):
     return html_content
 
 
-def generate_pdf_report(html_content):
-    """Converts HTML content to a PDF file in memory."""
-    pdf_bytes = HTML(string=html_content).write_pdf()
-    return pdf_bytes
-
-
 def get_report_download_link(ticker, market_status, prediction, df_hist):
-    """Generates a download link for the PDF report."""
+    """Generates a download link for the HTML report."""
     html_report = generate_html_report(ticker, market_status, prediction, df_hist)
-    pdf_report = generate_pdf_report(html_report)
 
-    b64 = base64.b64encode(pdf_report).decode()
+    b64 = base64.b64encode(html_report.encode()).decode()
     filename = (
-        f"{ticker.replace('.NS', '')}_report_{datetime.now().strftime('%Y%m%d')}.pdf"
+        f"{ticker.replace('.NS', '')}_report_{datetime.now().strftime('%Y%m%d')}.html"
     )
 
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}">Download PDF Report</a>'
+    href = f'<a href="data:text/html;base64,{b64}" download="{filename}">Download HTML Report</a>'
     return href
