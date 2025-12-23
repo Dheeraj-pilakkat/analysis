@@ -7,7 +7,6 @@ from datetime import datetime
 import jinja2
 import plotly.graph_objects as go
 import streamlit as st
-from weasyprint import HTML
 
 # --- HTML Template for the report ---
 HTML_TEMPLATE = """
@@ -42,11 +41,7 @@ HTML_TEMPLATE = """
         </table>
     </div>
 
-    <div class="chart">
-        <h2>Price Chart</h2>
-        <p>Recent price movement with 50-day and 200-day moving averages.</p>
-        <img src="data:image/png;base64,{{ price_chart_b64 }}" alt="Price Chart" style="width:100%;">
-    </div>
+
 
     <div class="prediction">
         <h2>Model Prediction</h2>
@@ -66,82 +61,29 @@ HTML_TEMPLATE = """
 """
 
 
-def create_price_chart_for_report(df_hist):
-    """Generates a Plotly chart and returns it as a base64 encoded string."""
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Candlestick(
-            x=df_hist.index,
-            open=df_hist["Open"],
-            high=df_hist["High"],
-            low=df_hist["Low"],
-            close=df_hist["Close"],
-            name="Price",
-        )
-    )
-
-    if "SMA_50" in df_hist.columns:
-        fig.add_trace(
-            go.Scatter(
-                x=df_hist.index, y=df_hist["SMA_50"], mode="lines", name="50-Day SMA"
-            )
-        )
-    if "SMA_200" in df_hist.columns:
-        fig.add_trace(
-            go.Scatter(
-                x=df_hist.index, y=df_hist["SMA_200"], mode="lines", name="200-Day SMA"
-            )
-        )
-
-    fig.update_layout(
-        title="Price History with Moving Averages",
-        xaxis_title="Date",
-        yaxis_title="Price",
-        legend_title="Legend",
-    )
-
-    # Convert to image bytes
-    img_bytes = fig.to_image(format="png")
-    b64_string = base64.b64encode(img_bytes).decode()
-
-    return b64_string
-
-
 def generate_html_report(ticker, market_status, prediction, df_hist):
     """Renders the HTML report from the template."""
     template = jinja2.Template(HTML_TEMPLATE)
-
-    # Generate chart
-    price_chart_b64 = create_price_chart_for_report(df_hist)
 
     report_data = {
         "ticker": ticker,
         "generation_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "market_status": market_status,
         "prediction": prediction,
-        "price_chart_b64": price_chart_b64,
     }
 
     html_content = template.render(report_data)
     return html_content
 
 
-def generate_pdf_report(html_content):
-    """Converts HTML content to a PDF file in memory."""
-    pdf_bytes = HTML(string=html_content).write_pdf()
-    return pdf_bytes
-
-
 def get_report_download_link(ticker, market_status, prediction, df_hist):
-    """Generates a download link for the PDF report."""
+    """Generates a download link for the HTML report."""
     html_report = generate_html_report(ticker, market_status, prediction, df_hist)
-    pdf_report = generate_pdf_report(html_report)
 
-    b64 = base64.b64encode(pdf_report).decode()
+    b64 = base64.b64encode(html_report.encode()).decode()
     filename = (
-        f"{ticker.replace('.NS', '')}_report_{datetime.now().strftime('%Y%m%d')}.pdf"
+        f"{ticker.replace('.NS', '')}_report_{datetime.now().strftime('%Y%m%d')}.html"
     )
 
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}">Download PDF Report</a>'
+    href = f'<a href="data:text/html;base64,{b64}" download="{filename}">Download HTML Report</a>'
     return href
